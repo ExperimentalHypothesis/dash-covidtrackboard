@@ -35,7 +35,7 @@ df = pd.merge(daily_states_df, pop_df, on="state")
 # pd.set_option("display.max_columns", None)
 
 # sum up for each state
-grouped_df = df.groupby("state", as_index=False)[["totalTestResults", "positive", "hospitalized", "recovered", "death"]].sum()
+# grouped_df = df.groupby("state", as_index=False)[["totalTestResults", "positive", "hospitalized", "recovered", "death"]].sum()
 
 external_stylesheets = ["https://codepen.io/chriddyp/pen/bWLwgP.css", dbc.themes.BOOTSTRAP]
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
@@ -140,8 +140,8 @@ app.layout = html.Div([
                 dcc.DatePickerSingle(
                     id='my-date-picker-single',
                     min_date_allowed=datetime.date(2020, 1, 22),
-                    max_date_allowed=yesterday, 
-                    date=str(yesterday) 
+                    max_date_allowed=set_starting_date(),
+                    date=str(set_starting_date()) 
                 ),
                 html.Br(),
             ], style={'text-align': 'center', "margin-bottom": "30px"}, className = "twelve columns"),
@@ -199,8 +199,8 @@ app.layout = html.Div([
             html.Br(),
             dash_table.DataTable(
             id='datatable_id',
-            data=grouped_df.to_dict('records'),
-            columns=cols, # here i use the renamed headers 
+            data=current_state_df.to_dict('records'),
+            columns=rename_datatable_columns(), # here i use the renamed headers 
             editable=False,
             filter_action="native",
             sort_action="native",
@@ -209,7 +209,6 @@ app.layout = html.Div([
             row_deletable=False,
             selected_rows=[],
             page_action='native',
-            # page_current = 0,
             page_size = 11,
             fixed_rows={ 'headers': True, 'data': 0 },
             virtualization=False,
@@ -259,7 +258,7 @@ app.layout = html.Div([
     [Input(component_id='my-date-picker-single', component_property='date')],
 )
 def update_output(date):
-    """ Function for updating  Map, Pie, Sunburst and Scatter charts through the date-picker callback button """  
+    """ Function for updating Map, Pie, Sunburst and Scatter charts through the date-picker callback button """  
 
     if date is None:
         raise PreventUpdate
