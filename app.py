@@ -421,11 +421,9 @@ app.layout = html.Div([
 #     return (bar_chart)
 
 
+if __name__ == '__main__':
+    app.run_server()
 
-app.run_server(debug=True)
-
-# if __name__ == '__main__':
-#     main()
 
 
 
