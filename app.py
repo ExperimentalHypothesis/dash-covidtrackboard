@@ -46,6 +46,7 @@ grouped_df = df.groupby("state", as_index=False)[["totalTestResults", "positive"
 
 external_stylesheets = ["https://codepen.io/chriddyp/pen/bWLwgP.css", dbc.themes.BOOTSTRAP]
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
+server = app.server
 
 # renaming datatable columns. doing it here because i dont want to mess with renaming dataframe colums...
 cols = [{"name": i, "id": i, "deletable": False, "selectable": False} for i in grouped_df.columns]
