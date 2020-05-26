@@ -1,4 +1,4 @@
-import requests, json
+import requests, json, os
 import pandas as pd
 import heapq
 
@@ -13,16 +13,6 @@ import dash, dash_table
 import dash_core_components as dcc 
 import dash_html_components as html 
 
-############## DATA FROM JSON FOR TESTING ###############
-
-# get the global data
-# daily_states_df = pd.read_json(r"C:\Users\nirvikalpa\source\repos\Python\demos\dash-demo-coronavirus\data\state-daily.json")
-# daily_us_df = pd.read_json(r"C:\Users\nirvikalpa\source\repos\Python\demos\dash-demo-coronavirus\data\us-daily.json")
-# current_state_df = pd.read_json(r"C:\Users\nirvikalpa\source\repos\Python\demos\dash-demo-coronavirus\data\state-current.json")
-# current_us_df = pd.read_json(r"C:\Users\nirvikalpa\source\repos\Python\demos\dash-demo-coronavirus\data\us-current.json")
-# pop_df = pd.read_json(r"C:\Users\nirvikalpa\source\repos\Python\demos\dash-demo-coronavirus\data\us-pop.json")
-
-
 ############## DATA FROM API ###############
 def get_api_data(source:str):
     ''' get data from api, return dateframe '''
@@ -34,10 +24,8 @@ daily_states_df = get_api_data("https://covidtracking.com/api/v1/states/daily.js
 daily_us_df = get_api_data("https://covidtracking.com/api/v1/us/daily.json")
 current_state_df = get_api_data("https://covidtracking.com/api/v1/states/current.json")
 current_us_df = get_api_data("https://covidtracking.com/api/v1/us/current.json")
-pop_df = pd.read_json(r"C:\Users\nirvikalpa\source\repos\Python\demos\dash-demo-coronavirus\data\us-pop.json")
 
-population = pd.read_csv(r"C:\Users\nirvikalpa\source\repos\Python\demos\dash-demo-coronavirus\data\us_population.csv")
-
+pop_df = pd.read_json(os.path.join(os.path.dirname(__file__), "data", "us-pop.json"))
 
 
 def cumulative_linechart_us():
@@ -140,8 +128,8 @@ def hospitalized():
 
 
 def corelation_positive_population():
-    pop_df = pd.read_json(r"C:\Users\nirvikalpa\source\repos\Python\demos\dash-demo-coronavirus\data\us-pop.json")
-    state_df = pd.read_json(r"C:\Users\nirvikalpa\source\repos\Python\demos\dash-demo-coronavirus\data\state-current.json")
+    pop_df = pd.read_json(os.path.join(os.path.dirname(__file__), "data", "us-pop.json"))
+    state_df = pd.read_json(os.path.join(os.path.dirname(__file__), "data", "state-current.json"))
     df = pd.merge(state_df, pop_df, on="state")    
     
 
@@ -266,8 +254,8 @@ def test_sun():
 
 
 def scatter_bar_population_positive():
-
-    pop_df = pd.read_json(r"C:\Users\nirvikalpa\source\repos\Python\demos\dash-demo-coronavirus\data\us-pop.json")
+    
+    pop_df = pd.read_json(os.path.join(os.path.dirname(__file__), "data", "us-pop.json"))
     df = pd.merge(current_state_df, pop_df, on="state")    
     popul = df["pop"]
     pint = [int(i.replace(",",""))for i in df["pop"]]
@@ -374,7 +362,7 @@ def scatter_bar_population_positive():
     return fig
 
 def sunburst():
-    df = pd.read_json(r"C:\Users\nirvikalpa\source\repos\Python\demos\dash-demo-coronavirus\data\sunburst.json")
+    df = pd.read_json(os.path.join(os.path.dirname(__file__), "data", "sunburst.json"))
     fig = px.sunburst(df,
                     path=["total for usa", "region", "division", "state"], 
                     values='positive', 
