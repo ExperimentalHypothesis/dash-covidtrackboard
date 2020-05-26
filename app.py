@@ -24,7 +24,8 @@ from charts import hosp_death_daily_increase, create_mortality_barchart, cumulat
 # daily_us_df = pd.read_json(r"C:\Users\nirvikalpa\source\repos\Python\demos\dash-demo-coronavirus\data\us-daily.json")
 # current_state_df = pd.read_json(r"C:\Users\nirvikalpa\source\repos\Python\demos\dash-demo-coronavirus\data\state-current.json")
 # current_us_df = pd.read_json(r"C:\Users\nirvikalpa\source\repos\Python\demos\dash-demo-coronavirus\data\us-current.json")
-# pop_df = pd.read_json(r"C:\Users\nirvikalpa\source\repos\Python\demos\dash-demo-coronavirus\data\us-pop.json")
+
+pop_df = pd.read_json(r"C:\Users\nirvikalpa\source\repos\Python\demos\dash-demo-coronavirus\data\us-pop.json")
 
 ############## DATA FROM API ###############
 def get_api_data(source:str):
