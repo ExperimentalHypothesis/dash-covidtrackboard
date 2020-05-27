@@ -1,8 +1,7 @@
-# module collecting utility functions (eg. functions that will be used in app layout, or somewhere near, but cant be defined in there)
+# module collecting utility functions/data (ewill be used in app layout, or in charts)
 
 import requests, datetime, os
 import pandas as pd
-
 
 
 def get_api_data(source:str):
@@ -12,8 +11,6 @@ def get_api_data(source:str):
     return pd.read_json(data.text)
 
 
-# global API data - in each function will make a copy/slice and work with the local copy only
-current_state_df = get_api_data("https://covidtracking.com/api/v1/states/current.json")
 # get the global API data 
 daily_states_df = get_api_data("https://covidtracking.com/api/v1/states/daily.json")
 daily_us_df = get_api_data("https://covidtracking.com/api/v1/us/daily.json")
@@ -23,13 +20,51 @@ current_us_df = get_api_data("https://covidtracking.com/api/v1/us/current.json")
 # static data about state population
 pop_df = pd.read_json(os.path.join(os.path.dirname(__file__), "data", "us-pop.json"))
 
+# USA divisions
+divisions = [{"New England" : ['Connecticut', 'Maine', 'Massachusetts', 'New Hampshire', 'Rhode Island', 'Vermont']},
+    {"Mid-Atlantic": ['New Jersey', 'New York', 'Pennsylvania']},
+    {"East North Central": ['Illinois', 'Indiana', 'Michigan', 'Ohio','Wisconsin']},
+    {"West North Central": ["Iowa, Kansas", "Minnesota", "Missouri", "Nebraska", "North Dakota", "South Dakota"]},
+    {'South Atlantic': ('Delaware', 'Florida', 'Georgia', 'Maryland', 'North Carolina', 'South Carolina', 'Virginia', 'District of Columbia','West Virginia')},
+    {'East South Central': ('Alabama', 'Kentucky', 'Mississippi', 'Tennessee')},
+    {'West South Central': ('Arkansas', 'Louisiana', 'Oklahoma', 'Texas')},
+    {'Mountain': ('Arizona', 'Colorado', 'Idaho', 'Montana', 'Nevada', 'New Mexico', 'Utah', 'Wyoming')},
+    {'Pacific': ('Alaska', 'California', 'Hawaii', 'Oregon', 'Washington')}]
+ 
+# USA regions
+regions= [
+    { "Northeast":
+        [
+            {"New England" : ['Connecticut', 'Maine', 'Massachusetts', 'New Hampshire', 'Rhode Island', 'Vermont']},
+            {"Mid-Atlantic": ['New Jersey', 'New York', 'Pennsylvania']}
+        ]
+    },
+    { 
+        "Midwest":
+        [
+            {"East North Central": ['Illinois', 'Indiana', 'Michigan', 'Ohio','Wisconsin']},
+            {"West North Central": ["Iowa, Kansas", "Minnesota", "Missouri", "Nebraska", "North Dakota", "South Dakota"]},
+        ]
+    },
+    {
+        "South":
+        [
+            {'South Atlantic': ('Delaware', 'Florida', 'Georgia', 'Maryland', 'North Carolina', 'South Carolina', 'Virginia', 'District of Columbia','West                  Virginia')},
+            {'East South Central': ('Alabama', 'Kentucky', 'Mississippi', 'Tennessee')},
+            {'West South Central': ('Arkansas', 'Louisiana', 'Oklahoma', 'Texas')},
+        ]
+    },
+    {
+        "West":
+        [
+            {'Mountain': ('Arizona', 'Colorado', 'Idaho', 'Montana', 'Nevada', 'New Mexico', 'Utah', 'Wyoming')},
+            {'Pacific': ('Alaska', 'California', 'Hawaii', 'Oregon', 'Washington')}
+        ]
+    },
+]
 
 
 
-
-
-
-# TODO finish. maybe no need to renaming, just rename the datatable cols in the copy
 
 def rename_datatable_columns() -> list:
     """ Rename datatable column names, since I dont want to rename dataframe columns globally """
@@ -52,8 +87,6 @@ def set_starting_date():
     delta = datetime.timedelta(days=1)
     yesterday = today - delta
     return yesterday
-
-
 
 
 

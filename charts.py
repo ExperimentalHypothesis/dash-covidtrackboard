@@ -1,5 +1,6 @@
 import requests, json, os
 import pandas as pd
+import numpy as np
 import heapq
 
 # plotly imports
@@ -15,13 +16,16 @@ import dash, dash_table
 import dash_core_components as dcc 
 import dash_html_components as html 
 
+# custom imports
+from utils import regions
+
 ############## DATA FROM API ###############
 def get_api_data(source:str):
     ''' get data from api, return dateframe '''
     data = requests.get(source)
     return pd.read_json(data.text)
 
-# get the global data
+# get the global data - there will be a local copy in each function
 daily_states_df = get_api_data("https://covidtracking.com/api/v1/states/daily.json")
 daily_us_df = get_api_data("https://covidtracking.com/api/v1/us/daily.json")
 current_state_df = get_api_data("https://covidtracking.com/api/v1/states/current.json")
@@ -265,31 +269,25 @@ def create_mortality_barchart():
     fig = px.bar(grouped_df, y='mortality', x='state', text='mortality')
     fig.update_traces(texttemplate='%{text:.2s}', textposition='outside')
 
-    fig.update_layout(  
-                        # uniformtext_minsize=8, 
-                        # uniformtext_mode='hide',
-                    # title={
-                    #     'text': 'Mortality Rate by State',
-                    #     'y':0.9,
-                    #     'x':0.5,
-                    #     # 'xanchor': 'center',
-                    #     'yanchor': 'top'
-                    #     },
-                        # font=dict(
-                        #     size=10,
-                        #     color="#7f7f7f"
-                        # ),
-                    title='Mortality Rate by State',
-                    # xaxis_tickfont_size=14,
-					plot_bgcolor = 'rgba(0,0,0,0)',
-                    yaxis=dict(
-                        title='Mortality Rate in %',
-                        # titlefont_size=15,
-                        # tickfont_size=13
-                        ),
-                    height=350,
-                    xaxis=dict(title='',),
-                    margin = dict(t=50, l=0, r=0, b=50),
+    fig.update_layout(  uniformtext_minsize=8, 
+                        uniformtext_mode='hide',
+                        height=350,
+                        title='Mortality Rate by State',
+                        # title={
+                        #     'text': 'Mortality Rate by State',
+                        #     'y':0.9,
+                        #     'x':0.5,
+                        #     # 'xanchor': 'center',
+                        #     'yanchor': 'top'
+                        #     },
+                        plot_bgcolor = 'rgba(0,0,0,0)',
+                        yaxis=dict(
+                            title='Mortality Rate in %',
+                            # titlefont_size=15,
+                            # tickfont_size=13
+                            ),
+                        xaxis=dict(title='',),
+                        margin = dict(t=50, l=0, r=0, b=50),
                     )
     return fig
 
@@ -299,12 +297,69 @@ def distribution_by_divisions():
     """ create sunburst chart for divisions, regions, states """
 
     df = pd.read_json(os.path.join(os.path.dirname(__file__), "data", "sunburst.json"))
-    fig = px.sunburst(df,
-                    path=["total for usa", "region", "division", "state"], 
+    print(df.head())
+    # print(current_state_df.columns)
+    # print(current_state_df.head())
+
+    loc_current_state_df = current_state_df[["state", "totalTestResults", "positive", "negative", "hospitalized", "recovered", "death"]]
+    loc_daily_states_df = daily_states_df[["dateChecked","state", "totalTestResults", "positive", "negative", "hospitalized", "recovered", "death"]]
+    # print(loc_current_state_df.head())
+    # print(loc_daily_states_df.head())
+    # print(pop_df.head())
+
+    mrg_current_states_df = pd.merge(loc_current_state_df, pop_df, on="state")
+    mrg_daily_states_df = pd.merge(loc_daily_states_df, pop_df, on="state")
+    # print(mrg_current_states_df)
+    # print(mrg_daily_states_df)
+
+    mrg_current_states_df["total positive usa"] = mrg_current_states_df["positive"].sum()
+    mrg_current_states_df["total hospitalized usa"] = mrg_current_states_df["hospitalized"].sum()
+    mrg_current_states_df["total recovered usa"] = mrg_current_states_df["recovered"].sum()
+    mrg_current_states_df["total death usa"] = mrg_current_states_df["death"].sum()
+    # print(mrg_current_states_df)
+
+    mrg_daily_states_df["total positive usa"] = mrg_daily_states_df["positive"].sum()
+    mrg_daily_states_df["total hospitalized usa"] = mrg_daily_states_df["hospitalized"].sum()
+    mrg_daily_states_df["total recovered usa"] = mrg_daily_states_df["recovered"].sum()
+    mrg_daily_states_df["total death usa"] = mrg_daily_states_df["death"].sum()
+
+
+    mrg_current_states_df["region"] = "None"
+    mrg_current_states_df["division"] = "None"
+    print(mrg_current_states_df)
+
+    mrg_daily_states_df["region"] = "None"
+    mrg_daily_states_df["division"] = "None"
+
+    # fill the regions and divisions to dataframe
+    for region in regions:
+        for region_name, region_list in region.items():
+            for division in region_list:
+                for division_name, states in division.items():
+                    for state in states:
+                        mrg_daily_states_df.loc[(mrg_daily_states_df["state name"] == state),"division"]=division_name
+                        mrg_daily_states_df.loc[(mrg_daily_states_df["state name"] == state),"region"]=region_name
+
+    for region in regions:
+        for region_name, region_list in region.items():
+            for division in region_list:
+                for division_name, states in division.items():
+                    for state in states:
+                        mrg_current_states_df.loc[(mrg_current_states_df["state name"] == state),"division"]=division_name
+                        mrg_current_states_df.loc[(mrg_current_states_df["state name"] == state),"region"]=region_name
+
+
+    cols = ["totalTestResults", "positive", "negative", "hospitalized", "recovered", "death"]
+    mrg_current_states_df[cols] = mrg_current_states_df[cols].replace({0:np.nan})
+
+    print(mrg_daily_states_df)
+    print(mrg_current_states_df)
+
+    fig = px.sunburst(mrg_current_states_df,
+                    path=["total positive usa", "region", "division", "state"], 
                     values='positive', 
                     color="death", 
-                    color_continuous_scale="Rdbu",
-)
+                    color_continuous_scale="Rdbu",)
     fig.update_layout(
         height=600, 
         title="Positive Cases by Region - Click To Expand",
@@ -313,62 +368,12 @@ def distribution_by_divisions():
                     r=1,
                     b=70,
                     t=100,
-        )
+                )
         )
     return fig
 
-
-# divisions = 
-# [{"New England" : ['Connecticut', 'Maine', 'Massachusetts', 'New Hampshire', 'Rhode Island', 'Vermont']},
-# {"Mid-Atlantic": ['New Jersey', 'New York', 'Pennsylvania']},
-# {"East North Central": ['Illinois', 'Indiana', 'Michigan', 'Ohio','Wisconsin']},
-# {"West North Central": ["Iowa, Kansas", "Minnesota", "Missouri", "Nebraska", "North Dakota", "South Dakota"]},
-# {'South Atlantic': ('Delaware', 'Florida', 'Georgia', 'Maryland', 'North Carolina', 'South Carolina', 'Virginia', 'District of Columbia','West Virginia')},
-# {'East South Central': ('Alabama', 'Kentucky', 'Mississippi', 'Tennessee')},
-# {'West South Central': ('Arkansas', 'Louisiana', 'Oklahoma', 'Texas')},
-# {'Mountain': ('Arizona', 'Colorado', 'Idaho', 'Montana', 'Nevada', 'New Mexico', 'Utah', 'Wyoming')},
-# {'Pacific': ('Alaska', 'California', 'Hawaii', 'Oregon', 'Washington')}]
+if __name__ == "__main__":
+    distribution_by_divisions()
 
 
-# regions= [
-#     { "Northeast":
-#         [
-#             {"New England" : ['Connecticut', 'Maine', 'Massachusetts', 'New Hampshire', 'Rhode Island', 'Vermont']},
-#             {"Mid-Atlantic": ['New Jersey', 'New York', 'Pennsylvania']}
-#         ]
-#     },
-
-# { "Midwest":
-#     [
-#         {"East North Central": ['Illinois', 'Indiana', 'Michigan', 'Ohio','Wisconsin']},
-#         {"West North Central": ["Iowa, Kansas", "Minnesota", "Missouri", "Nebraska", "North Dakota", "South Dakota"]},
-#     ]
-# },
-
-# {
-#     "South":
-#     [
-#         {'South Atlantic': ('Delaware', 'Florida', 'Georgia', 'Maryland', 'North Carolina', 'South Carolina', 'Virginia', 'District of Columbia','West                  Virginia')},
-#         {'East South Central': ('Alabama', 'Kentucky', 'Mississippi', 'Tennessee')},
-#         {'West South Central': ('Arkansas', 'Louisiana', 'Oklahoma', 'Texas')},
-#     ]
-# },
-
-# {
-#     "West":
-#     [
-#         {'Mountain': ('Arizona', 'Colorado', 'Idaho', 'Montana', 'Nevada', 'New Mexico', 'Utah', 'Wyoming')},
-#         {'Pacific': ('Alaska', 'California', 'Hawaii', 'Oregon', 'Washington')}
-#     ]
-# },
-
-# ]
-
-
-# for region in regions:
-#     for region_name, region_list in region.items():
-#         for division in region_list:
-#             for division_name, states in division.items():
-#                 for state in states:
-#                     df.loc[(df["state name"] == state),"division"]=division_name
-#                     df.loc[(df["state name"] == state),"region"]=region_name
+  
