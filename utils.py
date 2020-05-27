@@ -31,7 +31,7 @@ pop_df = pd.read_json(os.path.join(os.path.dirname(__file__), "data", "us-pop.js
 
 # TODO finish. maybe no need to renaming, just rename the datatable cols in the copy
 
-def rename_datatable_columns():
+def rename_datatable_columns() -> list:
     """ Rename datatable column names, since I dont want to rename dataframe columns globally """
 
     df = current_state_df[["state", "totalTestResults", "positive", "hospitalized", "recovered", "death"]]
@@ -52,6 +52,8 @@ def set_starting_date():
     delta = datetime.timedelta(days=1)
     yesterday = today - delta
     return yesterday
+
+
 
 
 

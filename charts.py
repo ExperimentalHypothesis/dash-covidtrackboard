@@ -2,11 +2,13 @@ import requests, json, os
 import pandas as pd
 import heapq
 
+# plotly imports
 import plotly, json, requests   
 import plotly.express as px
 import plotly.graph_objs as go
 from plotly.subplots import make_subplots
 
+# dash imports
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 import dash, dash_table
@@ -73,7 +75,6 @@ def total_tests_pie():
                 names=['Positive', 'Negative', 'Pending'], 
                 title='Tests Total')
     fig.update_layout(legend_orientation="h", margin = dict(l=20, r=20))
-
     return fig
 
 
@@ -102,9 +103,7 @@ def hosp_death_daily_increase():
     )
     fig.update_yaxes(title_text="<b>Fatal</b> Daily Increase", secondary_y=False)
     fig.update_yaxes(title_text="<b>Positive</b> Daily Increase", secondary_y=True)
-
     return fig
-
 
 
 def hospitalized():
@@ -128,15 +127,14 @@ def hospitalized():
 
 
 def corelation_positive_population():
+    """ create scatter chart for corelation """
+
     pop_df = pd.read_json(os.path.join(os.path.dirname(__file__), "data", "us-pop.json"))
     state_df = pd.read_json(os.path.join(os.path.dirname(__file__), "data", "state-current.json"))
     df = pd.merge(state_df, pop_df, on="state")    
     
-
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=df["pop"], y=df["positive"], mode='markers', text=df['state name']))
-
-    # styling
     fig.update_layout(  plot_bgcolor = 'rgba(0,0,0,0)', 
                         title='Corelation between population and positive', 
                         autosize=False,
@@ -149,111 +147,10 @@ def corelation_positive_population():
                             # t=30,
                             # pad=4
                         ),)
-    
     return fig
-
-
-import plotly.graph_objects as go
-
-# function for mortality barchart 
-def create_mortality_barchart():
-    grouped_df = daily_states_df.groupby("state", as_index=False)[["totalTestResults", "positive", "hospitalized", "recovered", "death"]].sum()
-    grouped_df["mortality"] = grouped_df["death"]/grouped_df["positive"] * 100
-
-    fig = px.bar(grouped_df, y='mortality', x='state', text='mortality')
-    fig.update_traces(texttemplate='%{text:.2s}', textposition='outside')
-
-    fig.update_layout(uniformtext_minsize=8, 
-                    uniformtext_mode='hide',
-                    # title={
-                    #     'text': 'Mortality Rate by State',
-                    #     'y':0.9,
-                    #     'x':0.5,
-                    #     # 'xanchor': 'center',
-                    #     'yanchor': 'top'
-                    #     },
-                        font=dict(
-                            size=10,
-                            color="#7f7f7f"
-                        ),
-                    # title='Mortality Rate by State',
-                    xaxis_tickfont_size=14,
-					plot_bgcolor = 'rgba(0,0,0,0)',
-                    yaxis=dict(
-                        title='Mortality Rate in %',
-                        titlefont_size=15,
-                        tickfont_size=13
-                        ),
-                    height=350,
-                    xaxis=dict(title='',),
-                    margin = dict(t=50, l=0, r=0, b=50),
-                    )
-    return fig
-
-def reported_cases_by_state():
-    grouped_df = daily_states_df.groupby("state", as_index=False)[["totalTestResults", "positive", "hospitalized", "recovered", "death"]].sum()
-
-    fig = go.Figure()
-    # fig.add_trace(go.Bar(x= grouped_df["state"],
-    #                 y=grouped_df["totalTestResults"],
-    #                 name="Total Tests"
-    #                 ))
-    fig.add_trace(go.Bar(x= grouped_df["state"],
-                    y=grouped_df["positive"],
-                    name="Positive",
-                    ))
-    fig.add_trace(go.Bar(x= grouped_df["state"],
-                    y=grouped_df["hospitalized"],
-                    name="Hospitalized"
-                    ))
-    fig.add_trace(go.Bar(x= grouped_df["state"],
-                    y=grouped_df["recovered"],
-                    name="Recovered",
-                    ))
-    fig.add_trace(go.Bar(x= grouped_df["state"],
-                    y=grouped_df["death"],
-                    name="Death"
-                    ))
-
-    fig.update_layout(
-        title='Reported Cases by State',
-        # xaxis_tickfont_size=8,
-        yaxis=dict(
-            # title='Reported Cases',
-            # titlefont_size=10,
-            # tickfont_size=8,
-        ),
-        legend=dict(
-            x=0.01,
-            y=1.0,
-            bgcolor='rgba(255, 255, 255, 0)',
-            bordercolor='rgba(255, 255, 255, 0)'
-        ),
-        height=350,
-        margin = dict(t=250, l=0, r=0, b=250),
-        barmode='group',
-        bargap=0.15, # gap between bars of adjacent location coordinates.
-        bargroupgap=0.1, # gap between bars of the same location coordinate.
-        plot_bgcolor = 'rgba(0,0,0,0)'
-    )
-    return fig
-
-
-def test_sun():
-    
-    fig =go.Figure(go.Sunburst(
-        labels=["Eve", "Cain", "Seth", "Enos", "Noam", "Abel", "Awan", "Enoch", "Azura"],
-        parents=["", "Eve", "Eve", "Seth", "Seth", "Eve", "Eve", "Awan", "Eve" ],
-        values=[10, 14, 12, 10, 2, 6, 6, 4, 4],
-    ))
-    fig.update_layout(margin = dict(t=0, l=40, r=0, b=0), title_text='Sunplot Test')
-
-    return fig
-
-
-
 
 def scatter_bar_population_positive():
+    """ create barchart/scatter for us states using subplots """
     
     pop_df = pd.read_json(os.path.join(os.path.dirname(__file__), "data", "us-pop.json"))
     df = pd.merge(current_state_df, pop_df, on="state")    
@@ -290,11 +187,8 @@ def scatter_bar_population_positive():
                 row=1, col=1)
 
     fig.update_layout(
-                    # margin = dict(t=0, l=0, r=0, b=00),
-
                     height=600, 
                     # width=1300, 
-
                     plot_bgcolor='rgba(0, 0, 0, 0)',
                     title_text="Positive Cases & Population by State",
                     xaxis=dict(
@@ -347,7 +241,7 @@ def scatter_bar_population_positive():
                     # ),   
             )
 
-    # anotation
+    # anotations
     largest_positive = heapq.nlargest(5, y_positive_df)
     for xa, ya in zip(x_state_df, y_positive_df):
         if ya in largest_positive:
@@ -361,7 +255,49 @@ def scatter_bar_population_positive():
 
     return fig
 
-def sunburst():
+
+def create_mortality_barchart():
+    """ create mortality barchart """
+
+    grouped_df = daily_states_df.groupby("state", as_index=False)[["totalTestResults", "positive", "hospitalized", "recovered", "death"]].sum()
+    grouped_df["mortality"] = grouped_df["death"]/grouped_df["positive"] * 100
+
+    fig = px.bar(grouped_df, y='mortality', x='state', text='mortality')
+    fig.update_traces(texttemplate='%{text:.2s}', textposition='outside')
+
+    fig.update_layout(  
+                        # uniformtext_minsize=8, 
+                        # uniformtext_mode='hide',
+                    # title={
+                    #     'text': 'Mortality Rate by State',
+                    #     'y':0.9,
+                    #     'x':0.5,
+                    #     # 'xanchor': 'center',
+                    #     'yanchor': 'top'
+                    #     },
+                        # font=dict(
+                        #     size=10,
+                        #     color="#7f7f7f"
+                        # ),
+                    title='Mortality Rate by State',
+                    # xaxis_tickfont_size=14,
+					plot_bgcolor = 'rgba(0,0,0,0)',
+                    yaxis=dict(
+                        title='Mortality Rate in %',
+                        # titlefont_size=15,
+                        # tickfont_size=13
+                        ),
+                    height=350,
+                    xaxis=dict(title='',),
+                    margin = dict(t=50, l=0, r=0, b=50),
+                    )
+    return fig
+
+
+
+def distribution_by_divisions():
+    """ create sunburst chart for divisions, regions, states """
+
     df = pd.read_json(os.path.join(os.path.dirname(__file__), "data", "sunburst.json"))
     fig = px.sunburst(df,
                     path=["total for usa", "region", "division", "state"], 

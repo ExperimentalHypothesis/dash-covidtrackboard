@@ -18,7 +18,7 @@ import dash_bootstrap_components as dbc
 
 # custom imports
 from utils import rename_datatable_columns, set_starting_date, get_api_data
-from charts import hosp_death_daily_increase, create_mortality_barchart, cumulative_linechart_us, total_tests_pie, hospitalized, reported_cases_by_state, corelation_positive_population, test_sun, cumulative_barchart_us, scatter_bar_population_positive, sunburst
+from charts import hosp_death_daily_increase, create_mortality_barchart, cumulative_linechart_us, total_tests_pie, hospitalized, corelation_positive_population, cumulative_barchart_us, scatter_bar_population_positive, distribution_by_divisions
 
 # get the global API data 
 daily_states_df = get_api_data("https://covidtracking.com/api/v1/states/daily.json")
@@ -26,7 +26,7 @@ daily_us_df = get_api_data("https://covidtracking.com/api/v1/us/daily.json")
 current_state_df = get_api_data("https://covidtracking.com/api/v1/states/current.json")
 current_us_df = get_api_data("https://covidtracking.com/api/v1/us/current.json")
 
-# static data about state population
+# static data about state population - scrapped from wikipedia
 pop_df = pd.read_json(os.path.join(os.path.dirname(__file__), "data", "us-pop.json"))
 
 
@@ -126,7 +126,7 @@ app.layout = html.Div([
             ]),
     ], className = "twelve columns"),
 
-    #-------------------------- THIRD PART: 4 CHARTS + DAILY TRACKER CALLBACK [NUMBERS FOR STATES] -------------------------------------
+    #-------------------------- THIRD PART: 4 CHARTS + DATE-PICKER CALLBACK [NUMBERS FOR STATES] -------------------------------------
 
     dbc.Jumbotron(           
         [
@@ -134,13 +134,16 @@ app.layout = html.Div([
                 html.H3("Daily Tracker of Reported Cases by State", style={"text-align":"center"}),
                 html.P("These charts show the progression of COVID-19 by state on a daily basis. The choropleth displays the density of reported cases, the pie shows a simple distribution across all the states and the corelation plots the dependency between positive cases and population of the particular state. The sunburts chart down left is quite interesting, it sums up all the reported cases by regions, divisions, and states, weights is out by the number of deaths and colors the region based on that result. You can hover over a region to see the details or click to expand it.",  style={"font-size": "12px"}),
                 html.P("Pick up a date to see the progression in a particular point in time."),
-                html.Br(),
+                # html.Br(),
+                html.Div([
                 dcc.DatePickerSingle(
                     id='my-date-picker-single',
                     min_date_allowed=datetime.date(2020, 1, 22),
                     max_date_allowed=set_starting_date(),
                     date=str(set_starting_date()) 
                 ),
+                ],  style={"font-size": "14px"} ),
+               
                 html.Br(),
             ], style={'text-align': 'center', "margin-bottom": "30px"}, className = "twelve columns"),
 
@@ -156,7 +159,7 @@ app.layout = html.Div([
 
             html.Div([
                 dbc.Jumbotron([ # left down chart: Regions and divisions
-                    dcc.Graph(figure = sunburst())
+                    dcc.Graph(figure = distribution_by_divisions())
                     ], className = "seven columns", style={"padding": "0px"}),
                 
                 dbc.Jumbotron([ # right down chart: Scatter corelation
@@ -202,8 +205,7 @@ app.layout = html.Div([
                 editable=False,
                 filter_action="native",
                 sort_action="native",
-                sort_mode="multi",
-                row_selectable="multi",
+                sort_mode="multi",                row_selectable="multi",
                 row_deletable=False,
                 selected_rows=[],
                 page_action='native',
@@ -299,6 +301,7 @@ def update_output(date):
                                 margin=dict(
                                     b=150,
                                 ),)
+        
         fig_pie.update_traces(domain_x=[0, 0.7]) # positiong of the chart itself, without the title
 
         # building the Corelation scatter
@@ -314,7 +317,7 @@ def update_output(date):
                                         l=10,
                                         r=10
                                     ),)
-
+        # TODO
         # building the Sunburst
 
         return (fig_map, fig_pie, fig_scatter)
@@ -334,14 +337,14 @@ def update_data(selected_rows, dropval):
     else:
         grouped_sel_df = current_state_df[current_state_df.index.isin(selected_rows)] 
 
-    # updating the X-axis labels based on the dropdown selection
+    # update the X-axis labels based on the dropdown selection
     if dropval == "positive": xaxis_label = "Positive"
     elif dropval == "totalTestResults": xaxis_label = "Tested"
     elif dropval == "hospitalized": xaxis_label = "Hospitalized"
     elif dropval == "recovered": xaxis_label = "Recovered"
     elif dropval == "death": xaxis_label = "Fatal"
 
-    # building the Horizontal Barchart
+    # build the Horizontal Barchart
     bar_chart = px.bar(
                         data_frame=grouped_sel_df,
                         y='state',
