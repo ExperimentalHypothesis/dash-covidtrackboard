@@ -34,8 +34,6 @@ pop_df = pd.read_json(os.path.join(os.path.dirname(__file__), "data", "us-pop.js
 df = pd.merge(daily_states_df, pop_df, on="state")
 # pd.set_option("display.max_columns", None)
 
-# sum up for each state
-# grouped_df = df.groupby("state", as_index=False)[["totalTestResults", "positive", "hospitalized", "recovered", "death"]].sum()
 
 external_stylesheets = ["https://codepen.io/chriddyp/pen/bWLwgP.css", dbc.themes.BOOTSTRAP]
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
@@ -198,24 +196,24 @@ app.layout = html.Div([
             html.P("This interactive table allows you to filter out data using arithmetic operators. If you for example want to see only states with positive cases above 1000, just type '> 1000' in the column 'Positive'. You can also use the checkboxes on the left to plot the data for particular state in the barchart on the right hand side of the table.", style={"text-align": "center", "font-size": "12px"}),
             html.Br(),
             dash_table.DataTable(
-            id='datatable_id',
-            data=current_state_df.to_dict('records'),
-            columns=rename_datatable_columns(), # here i use the renamed headers 
-            editable=False,
-            filter_action="native",
-            sort_action="native",
-            sort_mode="multi",
-            row_selectable="multi",
-            row_deletable=False,
-            selected_rows=[],
-            page_action='native',
-            page_size = 11,
-            fixed_rows={ 'headers': True, 'data': 0 },
-            virtualization=False,
-            style_cell={
-                'minWidth': '40px', 'width': '60px', 'maxWidth': 'px',
-                'overflow': 'hidden',
-                'textOverflow': 'ellipsis',
+                id='datatable_id',
+                data=current_state_df.to_dict('records'),
+                columns=rename_datatable_columns(), # here i use the renamed headers 
+                editable=False,
+                filter_action="native",
+                sort_action="native",
+                sort_mode="multi",
+                row_selectable="multi",
+                row_deletable=False,
+                selected_rows=[],
+                page_action='native',
+                page_size = 11,
+                fixed_rows={ 'headers': True, 'data': 0 },
+                virtualization=False,
+                style_cell={
+                    'minWidth': '40px', 'width': '60px', 'maxWidth': 'px',
+                    'overflow': 'hidden',
+                    'textOverflow': 'ellipsis',
             },)
         ], className="eight columns",  style={"text-align": "center", "font-size": "12px"}),
 

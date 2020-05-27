@@ -5,29 +5,37 @@ import pandas as pd
 
 
 
-
 def get_api_data(source:str):
     ''' Get data from API source '''
 
     data = requests.get(source)
     return pd.read_json(data.text)
 
+
+# global API data - in each function will make a copy/slice and work with the local copy only
+current_state_df = get_api_data("https://covidtracking.com/api/v1/states/current.json")
+# get the global API data 
+daily_states_df = get_api_data("https://covidtracking.com/api/v1/states/daily.json")
+daily_us_df = get_api_data("https://covidtracking.com/api/v1/us/daily.json")
+current_state_df = get_api_data("https://covidtracking.com/api/v1/states/current.json")
+current_us_df = get_api_data("https://covidtracking.com/api/v1/us/current.json")
+
+# static data about state population
+pop_df = pd.read_json(os.path.join(os.path.dirname(__file__), "data", "us-pop.json"))
+
+
+
+
+
+
+
 # TODO finish. maybe no need to renaming, just rename the datatable cols in the copy
 
 def rename_datatable_columns():
-    """ Rename datatable columns. I am doing it this way since I dont want to rename dataframe colums directly """
+    """ Rename datatable column names, since I dont want to rename dataframe columns globally """
 
-    # daily_states_df = get_api_data("https://covidtracking.com/api/v1/states/daily.json")
-    # pop_df = pd.read_json(os.path.join(os.path.dirname(__file__), "data", "us-pop.json"))
-
-    # df = pd.merge(daily_states_df, pop_df, on="state")
-    # grouped_df = df.groupby("state", as_index=False)[["totalTestResults", "positive", "hospitalized", "recovered", "death"]].sum()
-
-    current_state_df = get_api_data("https://covidtracking.com/api/v1/states/current.json")
-    grouped_df = current_state_df.groupby("state", as_index=False)[["totalTestResults", "positive", "hospitalized", "recovered", "death"]].sum()
-
-
-    cols = [{"name": i, "id": i, "deletable": False, "selectable": False} for i in grouped_df.columns]
+    df = current_state_df[["state", "totalTestResults", "positive", "hospitalized", "recovered", "death"]]
+    cols = [{"name": i, "id": i, "deletable": False, "selectable": False} for i in df.columns]
     cols[0]["name"] = "State"
     cols[1]["name"] = "Tested"
     cols[2]["name"] = "Positive"
@@ -38,9 +46,14 @@ def rename_datatable_columns():
 
 
 def set_starting_date():
-    """ Set a default staring date in date-picker for Map, Pie, Corelation and Sunburst chart """
+    """ Set the default staring date in date-picker for Map, Pie, Corelation and Sunburst chart """
 
     today = datetime.date.today()
     delta = datetime.timedelta(days=1)
     yesterday = today - delta
     return yesterday
+
+
+
+if __name__ == "__main__":
+    rename_datatable_columns()
