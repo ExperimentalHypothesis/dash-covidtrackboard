@@ -243,13 +243,9 @@ app.layout = html.Div([
 
     ], className="twelve columns"),
 
-    html.Div([
-        dcc.Graph(figure=distribution_by_divisions())
-    ]),
-
-    html.Footer([
-        html.P("Primary data source: CovidTracker API. Created by nirvikalpa © 2020.", style={"text-align":"center"}),
-        html.P(html.A('Buy me a drink and support this project.', href='www.google.com'), style={"text-align":"center"}),
+     html.Footer([
+        html.P("Primary data source: CovidTracking API. Created by Lukash K. © 2020.", style={"text-align":"center"}),
+        html.P(html.A('Buy me a drink and support this project.', href='https://www.buymeacoffee.com/nirvikalpa'), style={"text-align":"center"}),
     ], style={"margin": "1px auto 0 auto"})
 
     ], className = "row", style={"width":"80%", "margin": "auto"}
@@ -261,8 +257,7 @@ app.layout = html.Div([
     Output(component_id='us_pie', component_property='figure'),
     Output(component_id='us_corel', component_property='figure'),
     Output(component_id='us_sunburst', component_property='figure')],
-    [Input(component_id='my-date-picker-single', component_property='date')],
-)
+    [Input(component_id='my-date-picker-single', component_property='date')],)
 def update_output(date):
     """ Function for updating Map, Pie, Sunburst and Scatter charts through the date-picker callback button """  
 
@@ -350,14 +345,13 @@ def update_output(date):
 @app.callback(
     Output('horizontal_barchart', 'figure'),  
     [Input('datatable_id', 'selected_rows'),
-    Input('dropval', 'value')]
-)
+    Input('dropval', 'value')])
 def update_data(selected_rows, dropval):
     """ Function for updating the Horizontal Barchar based on what states are selected in the table and what is picked in dropdown """
 
     # update the table
     if len(selected_rows) == 0:
-        grouped_sel_df = current_state_df[current_state_df['state'].isin(['NY', "NJ", "IL", "MA", "TX", "PA", "OH", "UT", "VI", "VT"])] 
+        grouped_sel_df = current_state_df[current_state_df['state'].isin(["NJ", "IL", "MA", "TX", "PA", "KS", "OH", "UT", "VI", "VT"])] 
     else:
         grouped_sel_df = current_state_df[current_state_df.index.isin(selected_rows)] 
 
