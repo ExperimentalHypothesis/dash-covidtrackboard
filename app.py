@@ -269,8 +269,9 @@ def update_output(date):
     if date is None:
         raise PreventUpdate
     else:
-        date = date.replace("-", "") 
+        date = date.replace("-", "")
         qdf = df.query("date=={}".format(date))
+
         states = qdf["state"]
         posi = qdf["positive"]
 
@@ -306,7 +307,8 @@ def update_output(date):
                                 ),
                                 margin=dict(
                                     b=150,
-                                ),)
+                                ),
+                            )
         fig_pie.update_traces(domain_x=[0, 0.7]) # positiong of the chart itself, without the title
 
         # building the Corelation scatter
@@ -324,25 +326,25 @@ def update_output(date):
                                     ),)
 
         # building the Sunburst
-        date_df = create_df_for_date(date)
+        print(date)
+        date_df = create_df_for_date(int(date))
         print(date_df)
-
         fig_sunburst = px.sunburst( date_df,
-                                    path=["total positive", "region", "division", "state"], 
-                                    values='positive', 
-                                    color="death", 
-                                    color_continuous_scale="Rdbu")
+                                path=["total positive", "region", "division", "state"], 
+                                values='positive', 
+                                color="death", 
+                                color_continuous_scale="Rdbu")
         fig_sunburst.update_layout( height=600, 
-                                    title="Positive Cases by Region - Click To Expand",
-                                    margin=dict(
-                                                l=1,
-                                                r=1,
-                                                b=70,
-                                                t=100,
-                                    )
-                                    )
+                                title="Positive Cases by Region - Click To Expand",
+                                margin=dict(
+                                            l=1,
+                                            r=1,
+                                            b=70,
+                                            t=100,
+                                )
+                                )
 
-        return (fig_map, fig_pie, fig_scatter, fig_sunburst)
+    return (fig_map, fig_pie, fig_scatter, fig_sunburst)
 
 
 @app.callback(
