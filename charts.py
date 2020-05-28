@@ -372,6 +372,7 @@ def distribution_by_divisions():
         )
     return fig
 
+
 if __name__ == "__main__":
     distribution_by_divisions()
 

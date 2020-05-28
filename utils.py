@@ -2,6 +2,7 @@
 
 import requests, datetime, os
 import pandas as pd
+import numpy as np
 
 
 def get_api_data(source:str):
@@ -64,6 +65,34 @@ regions= [
 ]
 
 
+# TODO fix the waring https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+def create_df_for_date(date:str):
+    """ create dataframe for sunburts chart. It accepts date as a parsed string already, not as datetime.date object """
+
+    # slice the subdataframe and sum_up the numbers for particular date
+    date_df = daily_states_df[daily_states_df["date"] == date]
+    date_df["total positive"] = date_df["positive"].sum()
+    date_df["total hospitalized"] = date_df["hospitalized"].sum()
+    date_df["total recovered"] = date_df["recovered"].sum()
+    date_df["total death"] = date_df["death"].sum()
+    # merge it whole USA population
+    date_df = pd.merge(date_df, pop_df)
+    # add aditiononal cols and fill the cols with regions/divisions
+    date_df["region"] = "None"
+    date_df["division"] = "None"
+    for region in regions:
+        for region_name, region_list in region.items():
+            for division in region_list:
+                for division_name, states in division.items():
+                    for state in states:
+                        date_df.loc[(date_df["state name"] == state),"division"]=division_name
+                        date_df.loc[(date_df["state name"] == state),"region"]=region_name  
+
+    # fix the possible zero div error   
+    cols = ["totalTestResults", "positive", "negative", "hospitalized", "recovered", "death"]
+    date_df[cols] = date_df[cols].replace({0:np.nan})
+    
+    return date_df
 
 
 def rename_datatable_columns() -> list:
