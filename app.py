@@ -1,5 +1,6 @@
 import requests, json, os
 import pandas as pd
+import numpy as np
 import datetime
 
 # plotly imports
@@ -17,7 +18,7 @@ import dash_html_components as html
 import dash_bootstrap_components as dbc
 
 # custom imports
-from utils import rename_datatable_columns, set_starting_date, get_api_data
+from utils import rename_datatable_columns, set_starting_date, get_api_data, regions
 from charts import hosp_death_daily_increase, create_mortality_barchart, cumulative_linechart_us, total_tests_pie, hospitalized, corelation_positive_population, cumulative_barchart_us, scatter_bar_population_positive, distribution_by_divisions
 
 # get the global API data 
@@ -159,7 +160,8 @@ app.layout = html.Div([
 
             html.Div([
                 dbc.Jumbotron([ # left down chart: Regions and divisions
-                    dcc.Graph(figure = distribution_by_divisions())
+                    # dcc.Graph(figure = distribution_by_divisions())
+                    dcc.Graph(id = "us_sunburst")
                     ], className = "seven columns", style={"padding": "0px"}),
                 
                 dbc.Jumbotron([ # right down chart: Scatter corelation
@@ -254,7 +256,8 @@ app.layout = html.Div([
 @app.callback(
     [Output(component_id='usa_map', component_property='figure'),
     Output(component_id='us_pie', component_property='figure'),
-    Output(component_id='us_corel', component_property='figure')],
+    Output(component_id='us_corel', component_property='figure'),
+    Output(component_id='us_sunburst', component_property='figure')],
     [Input(component_id='my-date-picker-single', component_property='date')],
 )
 def update_output(date):
@@ -301,7 +304,6 @@ def update_output(date):
                                 margin=dict(
                                     b=150,
                                 ),)
-        
         fig_pie.update_traces(domain_x=[0, 0.7]) # positiong of the chart itself, without the title
 
         # building the Corelation scatter
@@ -319,8 +321,81 @@ def update_output(date):
                                     ),)
         # TODO
         # building the Sunburst
+        loc_current_state_df = current_state_df[["state", "totalTestResults", "positive", "negative", "hospitalized", "recovered", "death"]]
+        loc_daily_states_df = daily_states_df[["date","state", "totalTestResults", "positive", "negative", "hospitalized", "recovered", "death"]]
+        # print(loc_current_state_df.head())
+        # print(loc_daily_states_df.head())
+        # print(pop_df.head())
 
-        return (fig_map, fig_pie, fig_scatter)
+        mrg_current_states_df = pd.merge(loc_current_state_df, pop_df, on="state")
+        mrg_daily_states_df = pd.merge(loc_daily_states_df, pop_df, on="state")
+        # print(mrg_current_states_df)
+        # print(mrg_daily_states_df)
+
+        mrg_current_states_df["total positive usa"] = mrg_current_states_df["positive"].sum()
+        mrg_current_states_df["total hospitalized usa"] = mrg_current_states_df["hospitalized"].sum()
+        mrg_current_states_df["total recovered usa"] = mrg_current_states_df["recovered"].sum()
+        mrg_current_states_df["total death usa"] = mrg_current_states_df["death"].sum()
+        print(mrg_current_states_df)
+
+        mrg_daily_states_df["total positive usa"] = mrg_daily_states_df["positive"].sum()
+        mrg_daily_states_df["total hospitalized usa"] = mrg_daily_states_df["hospitalized"].sum()
+        mrg_daily_states_df["total recovered usa"] = mrg_daily_states_df["recovered"].sum()
+        mrg_daily_states_df["total death usa"] = mrg_daily_states_df["death"].sum()
+
+
+        # mrg_current_states_df["region"] = "None"
+        # mrg_current_states_df["division"] = "None"
+        print(mrg_current_states_df)
+
+        mrg_daily_states_df["region"] = "None"
+        mrg_daily_states_df["division"] = "None"
+
+        # fill the regions and divisions to dataframe
+        for region in regions:
+            for region_name, region_list in region.items():
+                for division in region_list:
+                    for division_name, states in division.items():
+                        for state in states:
+                            mrg_daily_states_df.loc[(mrg_daily_states_df["state name"] == state),"division"]=division_name
+                            mrg_daily_states_df.loc[(mrg_daily_states_df["state name"] == state),"region"]=region_name
+
+
+        # for region in regions:
+        #     for region_name, region_list in region.items():
+        #         for division in region_list:
+        #             for division_name, states in division.items():
+        #                 for state in states:
+        #                     mrg_current_states_df.loc[(mrg_current_states_df["state name"] == state),"division"]=division_name
+        #                     mrg_current_states_df.loc[(mrg_current_states_df["state name"] == state),"region"]=region_name
+
+
+        cols = ["totalTestResults", "positive", "negative", "hospitalized", "recovered", "death"]
+        mrg_daily_states_df[cols] = mrg_daily_states_df[cols].replace({0:np.nan})
+
+
+        print(mrg_daily_states_df[mrg_daily_states_df["state"] == "NY"])
+        print(mrg_daily_states_df[mrg_daily_states_df["state"] == "CA"])
+
+        # print(mrg_current_states_df)
+
+        fig_sunburst = px.sunburst(mrg_daily_states_df,
+                        path=["total positive usa", "region", "division", "state"], 
+                        values='positive', 
+                        color="death", 
+                        color_continuous_scale="Rdbu",)
+        fig_sunburst.update_layout(
+            height=600, 
+            title="Positive Cases by Region - Click To Expand",
+            margin=dict(
+                        l=1,
+                        r=1,
+                        b=70,
+                        t=100,
+                    )
+            )
+
+        return (fig_map, fig_pie, fig_scatter, fig_sunburst)
 
 
 @app.callback(

@@ -297,7 +297,7 @@ def distribution_by_divisions():
     """ create sunburst chart for divisions, regions, states """
 
     df = pd.read_json(os.path.join(os.path.dirname(__file__), "data", "sunburst.json"))
-    print(df.head())
+    # print(df.head())
     # print(current_state_df.columns)
     # print(current_state_df.head())
 
@@ -326,7 +326,7 @@ def distribution_by_divisions():
 
     mrg_current_states_df["region"] = "None"
     mrg_current_states_df["division"] = "None"
-    print(mrg_current_states_df)
+    # print(mrg_current_states_df)
 
     mrg_daily_states_df["region"] = "None"
     mrg_daily_states_df["division"] = "None"
@@ -352,8 +352,8 @@ def distribution_by_divisions():
     cols = ["totalTestResults", "positive", "negative", "hospitalized", "recovered", "death"]
     mrg_current_states_df[cols] = mrg_current_states_df[cols].replace({0:np.nan})
 
-    print(mrg_daily_states_df)
-    print(mrg_current_states_df)
+    # print(mrg_daily_states_df)
+    # print(mrg_current_states_df)
 
     fig = px.sunburst(mrg_current_states_df,
                     path=["total positive usa", "region", "division", "state"], 
