@@ -19,7 +19,7 @@ import dash_bootstrap_components as dbc
 
 # custom imports
 from utils import rename_datatable_columns, set_starting_date, get_api_data, regions, create_df_for_date
-from charts import hosp_death_daily_increase, create_mortality_barchart, cumulative_linechart_us, total_tests_pie, hospitalized, corelation_positive_population, cumulative_barchart_us, scatter_bar_population_positive, distribution_by_divisions
+from charts import hosp_death_daily_increase, create_mortality_barchart, cumulative_linechart_us, total_tests_pie, hospitalized, corelation_positive_population, cumulative_barchart_us, scatter_bar_population_positive
 
 # get the global API data 
 daily_states_df = get_api_data("https://covidtracking.com/api/v1/states/daily.json")
@@ -160,7 +160,6 @@ app.layout = html.Div([
 
             html.Div([
                 dbc.Jumbotron([ # left down chart: Regions and divisions
-                    # dcc.Graph(figure = distribution_by_divisions())
                     dcc.Graph(id = "us_sunburst")
                     ], className = "seven columns", style={"padding": "0px"}),
                 
@@ -178,7 +177,8 @@ app.layout = html.Div([
         [
             html.Div([
                 html.H3("Reported Cases by State", style={"text-align":"center"}),
-                html.P("These humble barcharts represent the categorical data for each state. The mortality chart is calculated as a ration between reported positive  and fatal cases showing the percentage of infected people that actually died. The higher the number, the worse the situation in the particular state even though the state might have very few cases in absolut numbers.", style={"font-size": "12px"}),
+                html.P("These humble barcharts represent the categorical data for each state.", style={"font-size": "13px"}),
+                html.P("The combined line/bar chart shows the reported cases in the population for particular state. It basically shows how many  cases we have in one million of inhabitants. The mortality chart is calculated as a ratio between reported positive and fatal cases showing the percentage of infected people that actually died. The higher the number, the worse the situation in the particular state even though it might have very few cases in absolute numbers.", style={"font-size": "12px"}),
                 # html.P("You can hover over a figure in the graph to see the details or/and filter out a trace by clicking on its legend. You can also pick up a date to see the COVID progression in time."),
             ], style={'text-align': 'center', "margin-bottom": "30px"}, className = "twelve columns"),
 
@@ -298,13 +298,16 @@ def update_output(date):
         fig_pie.update_layout(  height = 600, 
                                 legend=dict(
                                     x=1,
-                                    y=0.7,
+                                    y=1,
                                 ),
-                                margin=dict(
-                                    b=150,
-                                ),
+                                # margin=dict(
+                                #     b=150,
+                                #     # l=350,
+                                #     r=50,
+                                # ),
                             )
-        fig_pie.update_traces(domain_x=[0, 0.7]) # positiong of the chart itself, without the title
+        fig_pie.update_traces(textinfo='none')
+        fig_pie.update_traces(domain_x=[0, 0.9]) # positiong of the chart itself, without the title
 
         # building the Corelation scatter
         fig_scatter = go.Figure(data=go.Scatter(x=qdf["pop"], 
@@ -312,7 +315,7 @@ def update_output(date):
                                                 mode='markers', 
                                                 text=qdf['state name']))
         fig_scatter.update_layout(  plot_bgcolor = 'rgba(0,0,0,0)', 
-                                    title='Corelation Chart', 
+                                    title='Reported Cases & Population: Corelation', 
                                     autosize=True,
                                     height=600,
                                     margin=dict(

@@ -161,7 +161,7 @@ def scatter_bar_population_positive():
     popul = df["pop"]
     pint = [int(i.replace(",",""))for i in df["pop"]]
 
-    y_positive_df = df["positive"]
+    y_positive_df = np.rint(df["positive"]/pint * 1_000_000)
     y_population_df = pint
     x_state_df = current_state_df["state"]
 
@@ -171,7 +171,7 @@ def scatter_bar_population_positive():
 
     fig.add_trace(go.Scatter(x=x_state_df, 
                             y=y_positive_df,
-                            name='Positive Cases in Thousands',
+                            name='Density of Reported Cases in the Population [for 1 Mil.]',
                             mode='lines+markers',
                             line_color="rgba(0,0,0,0.7)",
                             line_width=1),
@@ -179,7 +179,7 @@ def scatter_bar_population_positive():
 
     fig.add_trace(go.Bar(x=x_state_df, 
                         y=y_population_df,
-                        name='State Population in Millions',
+                        name='State Population [in Mil.]',
                         marker=dict(
                             color="rgba(50,171,96,0.6)",
                             line=dict(
@@ -194,7 +194,7 @@ def scatter_bar_population_positive():
                     height=600, 
                     # width=1300, 
                     plot_bgcolor='rgba(0, 0, 0, 0)',
-                    title_text="Positive Cases & Population by State",
+                    title_text="Population by State & Density of Reported Cases",
                     xaxis=dict(
                         showgrid=False,
                         showline=False,
@@ -253,7 +253,7 @@ def scatter_bar_population_positive():
                 xref='x2',
                 yref='y2',
                 x=xa,
-                y=ya + 13000,
+                y=ya + 1300,
                 text="{:,}".format(ya),
                 showarrow=False)
 
@@ -293,84 +293,81 @@ def create_mortality_barchart():
 
 
 
-def distribution_by_divisions():
-    """ create sunburst chart for divisions, regions, states """
+# def distribution_by_divisions():
+#     """ create sunburst chart for divisions, regions, states """
 
-    df = pd.read_json(os.path.join(os.path.dirname(__file__), "data", "sunburst.json"))
-    # print(df.head())
-    # print(current_state_df.columns)
-    # print(current_state_df.head())
+#     df = pd.read_json(os.path.join(os.path.dirname(__file__), "data", "sunburst.json"))
+#     # print(df.head())
+#     # print(current_state_df.columns)
+#     # print(current_state_df.head())
 
-    loc_current_state_df = current_state_df[["state", "totalTestResults", "positive", "negative", "hospitalized", "recovered", "death"]]
-    loc_daily_states_df = daily_states_df[["dateChecked","state", "totalTestResults", "positive", "negative", "hospitalized", "recovered", "death"]]
-    # print(loc_current_state_df.head())
-    # print(loc_daily_states_df.head())
-    # print(pop_df.head())
+#     loc_current_state_df = current_state_df[["state", "totalTestResults", "positive", "negative", "hospitalized", "recovered", "death"]]
+#     loc_daily_states_df = daily_states_df[["dateChecked","state", "totalTestResults", "positive", "negative", "hospitalized", "recovered", "death"]]
+#     # print(loc_current_state_df.head())
+#     # print(loc_daily_states_df.head())
+#     # print(pop_df.head())
 
-    mrg_current_states_df = pd.merge(loc_current_state_df, pop_df, on="state")
-    mrg_daily_states_df = pd.merge(loc_daily_states_df, pop_df, on="state")
-    # print(mrg_current_states_df)
-    # print(mrg_daily_states_df)
+#     mrg_current_states_df = pd.merge(loc_current_state_df, pop_df, on="state")
+#     mrg_daily_states_df = pd.merge(loc_daily_states_df, pop_df, on="state")
+#     # print(mrg_current_states_df)
+#     # print(mrg_daily_states_df)
 
-    mrg_current_states_df["total positive usa"] = mrg_current_states_df["positive"].sum()
-    mrg_current_states_df["total hospitalized usa"] = mrg_current_states_df["hospitalized"].sum()
-    mrg_current_states_df["total recovered usa"] = mrg_current_states_df["recovered"].sum()
-    mrg_current_states_df["total death usa"] = mrg_current_states_df["death"].sum()
-    # print(mrg_current_states_df)
+#     mrg_current_states_df["total positive usa"] = mrg_current_states_df["positive"].sum()
+#     mrg_current_states_df["total hospitalized usa"] = mrg_current_states_df["hospitalized"].sum()
+#     mrg_current_states_df["total recovered usa"] = mrg_current_states_df["recovered"].sum()
+#     mrg_current_states_df["total death usa"] = mrg_current_states_df["death"].sum()
+#     # print(mrg_current_states_df)
 
-    mrg_daily_states_df["total positive usa"] = mrg_daily_states_df["positive"].sum()
-    mrg_daily_states_df["total hospitalized usa"] = mrg_daily_states_df["hospitalized"].sum()
-    mrg_daily_states_df["total recovered usa"] = mrg_daily_states_df["recovered"].sum()
-    mrg_daily_states_df["total death usa"] = mrg_daily_states_df["death"].sum()
-
-
-    mrg_current_states_df["region"] = "None"
-    mrg_current_states_df["division"] = "None"
-    # print(mrg_current_states_df)
-
-    mrg_daily_states_df["region"] = "None"
-    mrg_daily_states_df["division"] = "None"
-
-    # fill the regions and divisions to dataframe
-    for region in regions:
-        for region_name, region_list in region.items():
-            for division in region_list:
-                for division_name, states in division.items():
-                    for state in states:
-                        mrg_daily_states_df.loc[(mrg_daily_states_df["state name"] == state),"division"]=division_name
-                        mrg_daily_states_df.loc[(mrg_daily_states_df["state name"] == state),"region"]=region_name
-
-    for region in regions:
-        for region_name, region_list in region.items():
-            for division in region_list:
-                for division_name, states in division.items():
-                    for state in states:
-                        mrg_current_states_df.loc[(mrg_current_states_df["state name"] == state),"division"]=division_name
-                        mrg_current_states_df.loc[(mrg_current_states_df["state name"] == state),"region"]=region_name
+#     mrg_daily_states_df["total positive usa"] = mrg_daily_states_df["positive"].sum()
+#     mrg_daily_states_df["total hospitalized usa"] = mrg_daily_states_df["hospitalized"].sum()
+#     mrg_daily_states_df["total recovered usa"] = mrg_daily_states_df["recovered"].sum()
+#     mrg_daily_states_df["total death usa"] = mrg_daily_states_df["death"].sum()
 
 
-    cols = ["totalTestResults", "positive", "negative", "hospitalized", "recovered", "death"]
-    mrg_current_states_df[cols] = mrg_current_states_df[cols].replace({0:np.nan})
+#     mrg_current_states_df["region"] = "None"
+#     mrg_current_states_df["division"] = "None"
+#     # print(mrg_current_states_df)
 
-    # print(mrg_daily_states_df)
-    # print(mrg_current_states_df)
+#     mrg_daily_states_df["region"] = "None"
+#     mrg_daily_states_df["division"] = "None"
 
-    fig = px.sunburst(mrg_current_states_df,
-                    path=["total positive usa", "region", "division", "state"], 
-                    values='positive', 
-                    color="death", 
-                    color_continuous_scale="Rdbu",)
-    fig.update_layout(
-        height=600, 
-        title="Positive Cases by Region - Click To Expand",
-        margin=dict(
-                    l=1,
-                    r=1,
-                    b=70,
-                    t=100,
-                )
-        )
-    return fig
+#     # fill the regions and divisions to dataframe
+#     for region in regions:
+#         for region_name, region_list in region.items():
+#             for division in region_list:
+#                 for division_name, states in division.items():
+#                     for state in states:
+#                         mrg_daily_states_df.loc[(mrg_daily_states_df["state name"] == state),"division"]=division_name
+#                         mrg_daily_states_df.loc[(mrg_daily_states_df["state name"] == state),"region"]=region_name
+
+#     for region in regions:
+#         for region_name, region_list in region.items():
+#             for division in region_list:
+#                 for division_name, states in division.items():
+#                     for state in states:
+#                         mrg_current_states_df.loc[(mrg_current_states_df["state name"] == state),"division"]=division_name
+#                         mrg_current_states_df.loc[(mrg_current_states_df["state name"] == state),"region"]=region_name
+
+
+#     cols = ["totalTestResults", "positive", "negative", "hospitalized", "recovered", "death"]
+#     mrg_current_states_df[cols] = mrg_current_states_df[cols].replace({0:np.nan})
+
+#     fig = px.sunburst(mrg_current_states_df,
+#                     path=["total positive usa", "region", "division", "state"], 
+#                     values='positive', 
+#                     color="death", 
+#                     color_continuous_scale="Rdbu",)
+#     fig.update_layout(
+#         height=600, 
+#         title="Positive Cases by Region - Click To Expand",
+#         margin=dict(
+#                     l=1,
+#                     r=1,
+#                     b=70,
+#                     t=100,
+#                 )
+#         )
+#     return fig
 
 
 if __name__ == "__main__":
