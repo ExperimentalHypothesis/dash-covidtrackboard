@@ -95,7 +95,7 @@ def hosp_death_daily_increase():
         secondary_y=True,
     )
     fig.update_layout(
-        title_text="Positive & Fatal Cases: Daily Increase",
+        title_text="Daily Increase of Positive & Fatal Cases",
 		plot_bgcolor = 'rgba(0,0,0,0)',
         legend=dict(
             x=0.01,
@@ -164,6 +164,7 @@ def scatter_bar_population_positive():
     y_positive_df = np.rint(df["positive"]/pint * 1_000_000)
     y_population_df = pint
     x_state_df = current_state_df["state"]
+
 
     fig = make_subplots(rows=2, cols=1, 
                         shared_xaxes=True, 

@@ -99,7 +99,8 @@ app.layout = html.Div([
         [
             html.Div([ 
                 html.H2("Global Overview: USA Reported Cases"),
-                html.P("These charts show the reported numbers for the whole USA from the inception date. They are collected on a daily basis and updated regularly each day at 20:00 CT. All the charts are interactive, you can hover over it to see the details or/and filter out a trace by clicking on its legend.", style={'text-align': 'center', "font-size":"12px", "margin-bottom": "20px"}),
+                html.P("These charts show the reported numbers for the whole USA from the inception date.", style={'text-align': 'center', "font-size":"12px"}),
+                html.P("They are collected daily and updated regularly each day at 20:00 CT. All the charts are interactive, you can hover over it to see the details or/and filter out a trace by clicking on its legend.", style={'text-align': 'center', "font-size":"12px", "margin-bottom": "20px"}),
             ], className = "twelve columns", style={'text-align': 'center'}),
 
             html.Div([  
@@ -133,7 +134,8 @@ app.layout = html.Div([
         [
             html.Div([
                 html.H3("Daily Tracker of Reported Cases by State", style={"text-align":"center"}),
-                html.P("These charts show the progression of COVID-19 by state on a daily basis. The choropleth displays the density of reported cases, the pie shows a simple distribution across all the states and the corelation plots the dependency between positive cases and population of the particular state. The sunburts chart down left is quite interesting, it sums up all the reported cases by regions, divisions, and states, weights is out by the number of deaths and colors the region based on that result. You can hover over a region to see the details or click to expand it.",  style={"font-size": "12px"}),
+                html.P("These four plots show the progression of COVID-19 by the state on a daily basis.", style={"font-size": "13px"}),
+                html.P("The choropleth displays the density of reported cases, the pie shows a simple distribution across all the states, and the correlation plots the dependency between positive cases and the population of the particular state. The sunburst chart down left sums up all the reported cases by regions, divisions, and states, weights it out by the number of deaths, and colors the region based on that result. You can hover over a region to see the details or click to expand it",  style={"font-size": "12px"}),
                 html.P("Pick up a date to see the progression in a particular point in time."),
                 # html.Br(),
                 html.Div([
@@ -177,8 +179,8 @@ app.layout = html.Div([
         [
             html.Div([
                 html.H3("Reported Cases by State", style={"text-align":"center"}),
-                html.P("These humble barcharts represent the categorical data for each state.", style={"font-size": "13px"}),
-                html.P("The combined line/bar chart shows the reported cases in the population for particular state. It basically shows how many  cases we have in one million of inhabitants. The mortality chart is calculated as a ratio between reported positive and fatal cases showing the percentage of infected people that actually died. The higher the number, the worse the situation in the particular state even though it might have very few cases in absolute numbers.", style={"font-size": "12px"}),
+                html.P("These humble bar charts represent the categorical data for each state.", style={"font-size": "13px"}),
+                html.P("The combined line/bar chart shows the reported cases in the population for a particular state. It shows how many cases we have in one million of inhabitants. The mortality chart is calculated as a ratio between reported positive and fatal cases showing the percentage of infected people that died. The higher the number, the worse the situation in the particular state even though it might have very few cases in absolute numbers.", style={"font-size": "12px"}),
                 # html.P("You can hover over a figure in the graph to see the details or/and filter out a trace by clicking on its legend. You can also pick up a date to see the COVID progression in time."),
             ], style={'text-align': 'center', "margin-bottom": "30px"}, className = "twelve columns"),
 
@@ -198,7 +200,7 @@ app.layout = html.Div([
         html.Div([ # the interactive table
             html.H3("Reported Cases: Tabular Data Overwiev", style={"text-align":"center"}),
             html.Br(),
-            html.P("This interactive table allows you to filter out data using arithmetic operators. If you for example want to see only states with positive cases above 1000, just type '> 1000' in the column 'Positive'. You can also use the checkboxes on the left to plot the data for particular state in the barchart on the right hand side of the table.", style={"text-align": "center", "font-size": "12px"}),
+            html.P("This interactive table allows you to filter out data using arithmetic operators. If you for example want to see only states with positive cases above 1000, just type '> 1000' in the column 'Positive'. You can also use the checkboxes on the left to plot the data for a particular state in the bar chart on the right-hand side of the table.", style={"text-align": "center", "font-size": "12px"}),
             html.Br(),
             dash_table.DataTable(
                 id='datatable_id',
@@ -306,8 +308,14 @@ def update_output(date):
                                 #     r=50,
                                 # ),
                             )
-        fig_pie.update_traces(textinfo='none')
-        fig_pie.update_traces(domain_x=[0, 0.9]) # positiong of the chart itself, without the title
+
+        # this will show only text that fits into the piesegmet
+        fig_pie.update_traces(textposition='inside')
+        fig_pie.update_layout(uniformtext_minsize=9, uniformtext_mode='hide')
+
+        # positiong of the chart itself, without the title
+        # fig_pie.update_traces(textinfo='none')
+        fig_pie.update_traces(domain_x=[0, 0.9])
 
         # building the Corelation scatter
         fig_scatter = go.Figure(data=go.Scatter(x=qdf["pop"], 
@@ -315,7 +323,7 @@ def update_output(date):
                                                 mode='markers', 
                                                 text=qdf['state name']))
         fig_scatter.update_layout(  plot_bgcolor = 'rgba(0,0,0,0)', 
-                                    title='Reported Cases & Population: Corelation', 
+                                    title='Correlation of Reported Cases & Population', 
                                     autosize=True,
                                     height=600,
                                     margin=dict(
