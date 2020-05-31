@@ -39,6 +39,7 @@ df = pd.merge(daily_states_df, pop_df, on="state")
 external_stylesheets = ["https://codepen.io/chriddyp/pen/bWLwgP.css", dbc.themes.BOOTSTRAP]
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 server = app.server
+app.title = "US COVID-19 TRACKER"
 
 app.layout = html.Div([
     html.H1(children='COVID-19 US Data Tracker', style={"margin": "50px auto 0 auto", "margin-bottom": "50px"}),
