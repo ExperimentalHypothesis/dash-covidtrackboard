@@ -103,12 +103,5 @@ def rename_datatable_columns() -> list:
     cols[5]["name"] = "Fatal"
     return cols
 
-
-def set_starting_date():
-    """ Set the default staring date in date-picker for Map, Pie, Corelation and Sunburst chart. """
-    max_date = "2021-03-07"
-    return datetime.datetime.strptime(max_date, "%Y-%m-%d")
-
-
 if __name__ == "__main__":
     rename_datatable_columns()

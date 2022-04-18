@@ -51,7 +51,7 @@ def cumulative_barchart_us():
     fig = go.Figure()
     fig.add_trace(go.Bar(x=["Positive"], y=current_us_df["positive"], name='Positive'))
     fig.add_trace(go.Bar(x=["Hospitalized"], y=current_us_df["hospitalizedCumulative"], name='Hospitalized'))
-    fig.add_trace(go.Bar(x=["Recovered"], y=current_us_df["recovered"], name='Recovered'))
+    fig.add_trace(go.Bar(x=["Pending"], y=current_us_df["pending"], name='Pending'))
     fig.add_trace(go.Bar(x=["Fatal"], y=current_us_df["death"], name='Fatal'))
     fig.update_layout(title_text='Cumulative Barmode', plot_bgcolor='rgba(0,0,0,0)')
     return fig
@@ -71,11 +71,11 @@ def hosp_death_daily_increase():
     """ Create line chart for daily increase. """
     fig = make_subplots(specs=[[{"secondary_y": True}]])
     fig.add_trace(
-        go.Scatter(x=daily_us_df["dateChecked"], y=daily_us_df["deathIncrease"], name="Fatal Cases", mode='lines'),
+        go.Scatter(x=daily_us_df["dateChecked"].str.split("T").str[0], y=daily_us_df["deathIncrease"], name="Fatal Cases", mode='lines'),
         secondary_y=False,
     )
     fig.add_trace(
-        go.Scatter(x=daily_us_df["dateChecked"], y=daily_us_df["positiveIncrease"], name="Positive Cases", mode='lines'),
+        go.Scatter(x=daily_us_df["dateChecked"].str.split("T").str[0], y=daily_us_df["positiveIncrease"], name="Positive Cases", mode='lines'),
         secondary_y=True,
     )
     fig.update_layout(
@@ -121,7 +121,7 @@ def corelation_positive_population():
     df = pd.merge(state_df, pop_df, on="state")
 
     fig = go.Figure()
-    fig.add_trace(go.Scatter(x=df["pop"], y=df["positive"], mode='markers', text=df['state name']))
+    fig.add_trace(go.Scatter(x=df["pop"], y=df["positive"].fillna(0), mode='markers', text=df['state name'].fillna(0)))
     fig.update_layout(plot_bgcolor='rgba(0,0,0,0)',
                       title='Corelation between population and positive', 
                       autosize=False,

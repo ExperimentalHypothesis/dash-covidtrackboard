@@ -16,7 +16,7 @@ import dash_html_components as html
 import dash_bootstrap_components as dbc
 
 # custom imports
-from utils import rename_datatable_columns, set_starting_date, get_api_data, create_df_for_date
+from utils import rename_datatable_columns, get_api_data, create_df_for_date
 from charts import hosp_death_daily_increase, create_mortality_barchart, cumulative_linechart_us, total_tests_pie, hospitalized, cumulative_barchart_us, scatter_bar_population_positive
 
 # get the global API data
@@ -39,10 +39,10 @@ external_stylesheets = [
     "https://codepen.io/chriddyp/pen/bWLwgP.css", dbc.themes.BOOTSTRAP]
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 server = app.server
-app.title = "US COVID-19 TRACKER"
+app.title = "COVID-19 TRACKER"
 
 app.layout = html.Div([
-    html.H1(children='COVID-19999 US Data Tracker',
+    html.H1(children='COVID-19 DATA TRACKER - THE FIRST YEAR OF PANDEMY OUTBURST IN USA',
             style={"margin": "50px auto 0 auto", "margin-bottom": "50px"}),
 
     # -------------------------- FIRST SECTION: NUMBERS OF 4 CASES -------------------------------------
@@ -73,9 +73,9 @@ app.layout = html.Div([
         html.Div([
             dbc.Jumbotron([
                 html.H3(
-                    f"{int(daily_us_df['recovered'].fillna(0)[0]):,}", className="display-3"),
+                    f"{int(daily_us_df['pending'].fillna(0)[0]):,}", className="display-3"),
                 html.P(
-                    "Recovered cases",
+                    "Pending cases",
                     className="lead",
                 ),
             ], style={"text-align": "center", "padding": "10px"})
@@ -144,8 +144,8 @@ app.layout = html.Div([
                 dcc.DatePickerSingle(
                     id='my-date-picker-single',
                     min_date_allowed=datetime.date(2020, 1, 22),
-                    max_date_allowed=set_starting_date(),
-                    date=str(set_starting_date())
+                    max_date_allowed=datetime.date(2021, 3, 7),
+                    date=str(datetime.date(2021, 3, 7))
                 ),
             ], style={"font-size": "14px"}),
 
