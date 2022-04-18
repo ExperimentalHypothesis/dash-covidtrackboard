@@ -38,14 +38,14 @@ server = app.server
 app.title = "US COVID-19 TRACKER"
 
 app.layout = html.Div([
-    html.H1(children='COVID-19 US Data Tracker', style={"margin": "50px auto 0 auto", "margin-bottom": "50px"}),
+    html.H1(children='COVID-19999 US Data Tracker', style={"margin": "50px auto 0 auto", "margin-bottom": "50px"}),
 
     # -------------------------- FIRST SECTION: NUMBERS OF 4 CASES -------------------------------------
 
     html.Div([
         html.Div([
             dbc.Jumbotron([
-                html.H3(f"{daily_us_df['positive'][0]:,}", className="display-4"),
+                html.H3(f"{daily_us_df['positive'][0]:,}", className="display-3"),
                 html.P(
                     "Positive cases",
                     className="lead",
@@ -55,7 +55,7 @@ app.layout = html.Div([
 
         html.Div([
             dbc.Jumbotron([
-                html.H3(f"{int(daily_us_df['hospitalizedCumulative'][0]):,}", className="display-4"),
+                html.H3(f"{int(daily_us_df['hospitalizedCumulative'][0]):,}", className="display-3"),
                 html.P(
                     "Hospitalized cases",
                     className="lead",
@@ -65,7 +65,7 @@ app.layout = html.Div([
 
         html.Div([
             dbc.Jumbotron([
-                html.H3(f"{int(daily_us_df['recovered'][0]):,}", className="display-4"),
+                html.H3(f"{int(daily_us_df['recovered'].fillna(0)[0]):,}", className="display-3"),
                 html.P(
                     "Recovered cases",
                     className="lead",
@@ -75,7 +75,7 @@ app.layout = html.Div([
 
         html.Div([
             dbc.Jumbotron([
-                html.H3(f"{int(daily_us_df['death'][0]):,}", className="display-4"),
+                html.H3(f"{int(daily_us_df['death'][0]):,}", className="display-3"),
                 html.P(
                     "Fatal cases",
                     className="lead",
@@ -123,45 +123,45 @@ app.layout = html.Div([
 
     # -------------------------- THIRD PART: 4 CHARTS + DATE-PICKER CALLBACK [NUMBERS FOR STATES] -------------------------------------
 
-    dbc.Jumbotron([
-        html.Div([
-            html.H3("Daily Tracker of Reported Cases by State", style={"text-align": "center"}),
-            html.P("These four plots show the progression of COVID-19 by the state on a daily basis.", style={"font-size": "13px"}),
-            html.P("The choropleth displays the density of reported cases, the pie shows a simple distribution across all the states, and the correlation plots the dependency between positive cases and the population of the particular state. The sunburst chart down left sums up all the reported cases by regions, divisions, and states, weights it out by the number of deaths, and colors the region based on that result. You can hover over a region to see the details or click to expand it", style={"font-size": "12px"}),
-            html.P("Pick up a date to see the progression in a particular point in time."),
-            html.Div([
-                dcc.DatePickerSingle(
-                    id='my-date-picker-single',
-                    min_date_allowed=datetime.date(2020, 1, 22),
-                    max_date_allowed=set_starting_date(),
-                    date=str(set_starting_date())
-                ),
-            ], style={"font-size": "14px"}),
+    # dbc.Jumbotron([
+    #     html.Div([
+    #         html.H3("Daily Tracker of Reported Cases by State", style={"text-align": "center"}),
+    #         html.P("These four plots show the progression of COVID-19 by the state on a daily basis.", style={"font-size": "13px"}),
+    #         html.P("The choropleth displays the density of reported cases, the pie shows a simple distribution across all the states, and the correlation plots the dependency between positive cases and the population of the particular state. The sunburst chart down left sums up all the reported cases by regions, divisions, and states, weights it out by the number of deaths, and colors the region based on that result. You can hover over a region to see the details or click to expand it", style={"font-size": "12px"}),
+    #         html.P("Pick up a date to see the progression in a particular point in time."),
+    #         html.Div([
+    #             dcc.DatePickerSingle(
+    #                 id='my-date-picker-single',
+    #                 min_date_allowed=datetime.date(2020, 1, 22),
+    #                 max_date_allowed=set_starting_date(),
+    #                 date=str(set_starting_date())
+    #             ),
+    #         ], style={"font-size": "14px"}),
 
-            html.Br(),
-        ], style={'text-align': 'center', "margin-bottom": "30px"}, className="twelve columns"),
+    #         html.Br(),
+    #     ], style={'text-align': 'center', "margin-bottom": "30px"}, className="twelve columns"),
 
-        html.Div([
-            dbc.Jumbotron([  # left up chart: Map
-                dcc.Graph(id='usa_map')
-                ], className="seven columns", style={"padding": "0px"}),
+    #     html.Div([
+    #         dbc.Jumbotron([  # left up chart: Map
+    #             dcc.Graph(id='usa_map')
+    #             ], className="seven columns", style={"padding": "0px"}),
 
-            dbc.Jumbotron([  # right up chart: Pie
-                dcc.Graph(id='us_pie')
-                ], className="five columns", style={"padding": "0px"}),
-        ]),
+    #         dbc.Jumbotron([  # right up chart: Pie
+    #             dcc.Graph(id='us_pie')
+    #             ], className="five columns", style={"padding": "0px"}),
+    #     ]),
 
-        html.Div([
-            dbc.Jumbotron([  # left down chart: Regions and divisions
-                dcc.Graph(id="us_sunburst")
-                ], className="seven columns", style={"padding": "0px"}),
+    #     html.Div([
+    #         dbc.Jumbotron([  # left down chart: Regions and divisions
+    #             dcc.Graph(id="us_sunburst")
+    #             ], className="seven columns", style={"padding": "0px"}),
             
-            dbc.Jumbotron([  # right down chart: Scatter corelation
-                dcc.Graph(id="us_corel")
-                ], className="five columns", style={"padding": "0px"}),
-        ]),
+    #         dbc.Jumbotron([  # right down chart: Scatter corelation
+    #             dcc.Graph(id="us_corel")
+    #             ], className="five columns", style={"padding": "0px"}),
+    #     ]),
 
-        ], className="twelve columns"),
+    #     ], className="twelve columns"),
 
 
     # -------------------------- FOURTH PART: 2 WIDE BARCHARTS [NUMBERS FOR STATES] -------------------------------------
@@ -371,4 +371,4 @@ def update_data(selected_rows, dropval):
 
 
 if __name__ == '__main__':
-    app.run_server()
+    app.run_server(port=8051)
