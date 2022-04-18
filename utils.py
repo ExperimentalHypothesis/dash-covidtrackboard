@@ -106,10 +106,8 @@ def rename_datatable_columns() -> list:
 
 def set_starting_date():
     """ Set the default staring date in date-picker for Map, Pie, Corelation and Sunburst chart. """
-    today = datetime.date.today()
-    delta = datetime.timedelta(days=1)
-    yesterday = today - delta
-    return yesterday
+    max_date = "2021-03-07"
+    return datetime.datetime.strptime(max_date, "%Y-%m-%d")
 
 
 if __name__ == "__main__":

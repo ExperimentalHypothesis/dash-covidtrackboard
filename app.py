@@ -1,4 +1,5 @@
-import os, datetime
+import os
+import datetime
 import pandas as pd
 
 # plotly imports
@@ -8,7 +9,8 @@ import plotly.graph_objs as go
 # dash imports
 from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
-import dash, dash_table
+import dash
+import dash_table
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
@@ -18,13 +20,14 @@ from utils import rename_datatable_columns, set_starting_date, get_api_data, cre
 from charts import hosp_death_daily_increase, create_mortality_barchart, cumulative_linechart_us, total_tests_pie, hospitalized, cumulative_barchart_us, scatter_bar_population_positive
 
 # get the global API data
-daily_states_df = get_api_data("https://covidtracking.com/api/v1/states/daily.json")
+daily_states_df = get_api_data( "https://covidtracking.com/api/v1/states/daily.json")
 daily_us_df = get_api_data("https://covidtracking.com/api/v1/us/daily.json")
 current_state_df = get_api_data("https://covidtracking.com/api/v1/states/current.json")
-current_us_df = get_api_data("https://covidtracking.com/api/v1/us/current.json")
+current_us_df = get_api_data( "https://covidtracking.com/api/v1/us/current.json")
 
 # static data about state population - scrapped from wikipedia
-pop_df = pd.read_json(os.path.join(os.path.dirname(__file__), "data", "us-pop.json"))
+pop_df = pd.read_json(os.path.join(
+    os.path.dirname(__file__), "data", "us-pop.json"))
 
 
 # merged df used for for all callback charts
@@ -32,20 +35,23 @@ df = pd.merge(daily_states_df, pop_df, on="state")
 # pd.set_option("display.max_columns", None)
 
 
-external_stylesheets = ["https://codepen.io/chriddyp/pen/bWLwgP.css", dbc.themes.BOOTSTRAP]
+external_stylesheets = [
+    "https://codepen.io/chriddyp/pen/bWLwgP.css", dbc.themes.BOOTSTRAP]
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 server = app.server
 app.title = "US COVID-19 TRACKER"
 
 app.layout = html.Div([
-    html.H1(children='COVID-19999 US Data Tracker', style={"margin": "50px auto 0 auto", "margin-bottom": "50px"}),
+    html.H1(children='COVID-19999 US Data Tracker',
+            style={"margin": "50px auto 0 auto", "margin-bottom": "50px"}),
 
     # -------------------------- FIRST SECTION: NUMBERS OF 4 CASES -------------------------------------
 
     html.Div([
         html.Div([
             dbc.Jumbotron([
-                html.H3(f"{daily_us_df['positive'][0]:,}", className="display-3"),
+                html.H3(f"{daily_us_df['positive'][0]:,}",
+                        className="display-3"),
                 html.P(
                     "Positive cases",
                     className="lead",
@@ -55,7 +61,8 @@ app.layout = html.Div([
 
         html.Div([
             dbc.Jumbotron([
-                html.H3(f"{int(daily_us_df['hospitalizedCumulative'][0]):,}", className="display-3"),
+                html.H3(
+                    f"{int(daily_us_df['hospitalizedCumulative'][0]):,}", className="display-3"),
                 html.P(
                     "Hospitalized cases",
                     className="lead",
@@ -65,7 +72,8 @@ app.layout = html.Div([
 
         html.Div([
             dbc.Jumbotron([
-                html.H3(f"{int(daily_us_df['recovered'].fillna(0)[0]):,}", className="display-3"),
+                html.H3(
+                    f"{int(daily_us_df['recovered'].fillna(0)[0]):,}", className="display-3"),
                 html.P(
                     "Recovered cases",
                     className="lead",
@@ -75,7 +83,8 @@ app.layout = html.Div([
 
         html.Div([
             dbc.Jumbotron([
-                html.H3(f"{int(daily_us_df['death'][0]):,}", className="display-3"),
+                html.H3(
+                    f"{int(daily_us_df['death'][0]):,}", className="display-3"),
                 html.P(
                     "Fatal cases",
                     className="lead",
@@ -92,76 +101,78 @@ app.layout = html.Div([
         [
             html.Div([
                 html.H2("Global Overview: USA Reported Cases"),
-                html.P("These charts show the reported numbers for the whole USA from the inception date.", style={'text-align': 'center', "font-size": "12px"}),
-                html.P("They are collected daily and updated regularly each day at 20:00 CT. All the charts are interactive, you can hover over it to see the details or/and filter out a trace by clicking on its legend.", style={'text-align': 'center', "font-size":"12px", "margin-bottom": "20px"}),
+                html.P("These charts show the reported numbers for the whole USA from the inception date.", style={
+                       'text-align': 'center', "font-size": "12px"}),
+                html.P("They are collected daily and updated regularly each day at 20:00 CT. All the charts are interactive, you can hover over it to see the details or/and filter out a trace by clicking on its legend.",
+                       style={'text-align': 'center', "font-size": "12px", "margin-bottom": "20px"}),
             ], className="twelve columns", style={'text-align': 'center'}),
 
             html.Div([
                 dbc.Jumbotron([  # linechart: Cummulative progresion in time
                     dcc.Graph(figure=cumulative_linechart_us()),
-                    ], className="seven columns", style={"padding": "0px"}),
+                ], className="seven columns", style={"padding": "0px"}),
 
                 dbc.Jumbotron([  # barchart: Absolute numbers
                     dcc.Graph(figure=cumulative_barchart_us()),
-                    ], className="five columns", style={"padding": "0px"}),
+                ], className="five columns", style={"padding": "0px"}),
             ]),
 
             html.Div([
                 dbc.Jumbotron([  # pie chart: Total tests
                     dcc.Graph(figure=total_tests_pie())
-                    ], className="three columns", style={"padding": "0px"}),
+                ], className="three columns", style={"padding": "0px"}),
 
                 dbc.Jumbotron([  # line chart: Daily increase
                     dcc.Graph(figure=hosp_death_daily_increase())
-                    ], className="six columns", style={"padding": "0px"}),
+                ], className="six columns", style={"padding": "0px"}),
 
                 dbc.Jumbotron([  # bar chart: Hospitalization
                     dcc.Graph(figure=hospitalized())
-                    ], className="three columns", style={"padding": "0px"}),
+                ], className="three columns", style={"padding": "0px"}),
             ]),
-    ], className="twelve columns"),
+        ], className="twelve columns"),
 
     # -------------------------- THIRD PART: 4 CHARTS + DATE-PICKER CALLBACK [NUMBERS FOR STATES] -------------------------------------
 
-    # dbc.Jumbotron([
-    #     html.Div([
-    #         html.H3("Daily Tracker of Reported Cases by State", style={"text-align": "center"}),
-    #         html.P("These four plots show the progression of COVID-19 by the state on a daily basis.", style={"font-size": "13px"}),
-    #         html.P("The choropleth displays the density of reported cases, the pie shows a simple distribution across all the states, and the correlation plots the dependency between positive cases and the population of the particular state. The sunburst chart down left sums up all the reported cases by regions, divisions, and states, weights it out by the number of deaths, and colors the region based on that result. You can hover over a region to see the details or click to expand it", style={"font-size": "12px"}),
-    #         html.P("Pick up a date to see the progression in a particular point in time."),
-    #         html.Div([
-    #             dcc.DatePickerSingle(
-    #                 id='my-date-picker-single',
-    #                 min_date_allowed=datetime.date(2020, 1, 22),
-    #                 max_date_allowed=set_starting_date(),
-    #                 date=str(set_starting_date())
-    #             ),
-    #         ], style={"font-size": "14px"}),
+    dbc.Jumbotron([
+        html.Div([
+            html.H3("Daily Tracker of Reported Cases by State", style={"text-align": "center"}),
+            html.P("These four plots show the progression of COVID-19 by the state on a daily basis.", style={"font-size": "13px"}),
+            html.P("The choropleth displays the density of reported cases, the pie shows a simple distribution across all the states, and the correlation plots the dependency between positive cases and the population of the particular state. The sunburst chart down left sums up all the reported cases by regions, divisions, and states, weights it out by the number of deaths, and colors the region based on that result. You can hover over a region to see the details or click to expand it", style={"font-size": "12px"}),
+            html.P("Pick up a date to see the progression in a particular point in time."),
+            html.Div([
+                dcc.DatePickerSingle(
+                    id='my-date-picker-single',
+                    min_date_allowed=datetime.date(2020, 1, 22),
+                    max_date_allowed=set_starting_date(),
+                    date=str(set_starting_date())
+                ),
+            ], style={"font-size": "14px"}),
 
-    #         html.Br(),
-    #     ], style={'text-align': 'center', "margin-bottom": "30px"}, className="twelve columns"),
+            html.Br(),
+        ], style={'text-align': 'center', "margin-bottom": "30px"}, className="twelve columns"),
 
-    #     html.Div([
-    #         dbc.Jumbotron([  # left up chart: Map
-    #             dcc.Graph(id='usa_map')
-    #             ], className="seven columns", style={"padding": "0px"}),
+        html.Div([
+            dbc.Jumbotron([  # left up chart: Map
+                dcc.Graph(id='usa_map')
+                ], className="seven columns", style={"padding": "0px"}),
 
-    #         dbc.Jumbotron([  # right up chart: Pie
-    #             dcc.Graph(id='us_pie')
-    #             ], className="five columns", style={"padding": "0px"}),
-    #     ]),
+            dbc.Jumbotron([  # right up chart: Pie
+                dcc.Graph(id='us_pie')
+                ], className="five columns", style={"padding": "0px"}),
+        ]),
 
-    #     html.Div([
-    #         dbc.Jumbotron([  # left down chart: Regions and divisions
-    #             dcc.Graph(id="us_sunburst")
-    #             ], className="seven columns", style={"padding": "0px"}),
-            
-    #         dbc.Jumbotron([  # right down chart: Scatter corelation
-    #             dcc.Graph(id="us_corel")
-    #             ], className="five columns", style={"padding": "0px"}),
-    #     ]),
+        html.Div([
+            dbc.Jumbotron([  # left down chart: Regions and divisions
+                dcc.Graph(id="us_sunburst")
+                ], className="seven columns", style={"padding": "0px"}),
 
-    #     ], className="twelve columns"),
+            dbc.Jumbotron([  # right down chart: Scatter corelation
+                dcc.Graph(id="us_corel")
+                ], className="five columns", style={"padding": "0px"}),
+        ]),
+
+        ], className="twelve columns"),
 
 
     # -------------------------- FOURTH PART: 2 WIDE BARCHARTS [NUMBERS FOR STATES] -------------------------------------
@@ -169,9 +180,12 @@ app.layout = html.Div([
     dbc.Jumbotron(
         [
             html.Div([
-                html.H3("Reported Cases by State", style={"text-align": "center"}),
-                html.P("These humble bar charts represent the categorical data for each state.", style={"font-size": "13px"}),
-                html.P("The combined line/bar chart shows the reported cases in the population for a particular state. It shows how many cases we have in one million of inhabitants. The mortality chart is calculated as a ratio between reported positive and fatal cases showing the percentage of infected people that died. The higher the number, the worse the situation in the particular state even though it might have very few cases in absolute numbers.", style={"font-size": "12px"}),
+                html.H3("Reported Cases by State",
+                        style={"text-align": "center"}),
+                html.P("These humble bar charts represent the categorical data for each state.", style={
+                       "font-size": "13px"}),
+                html.P("The combined line/bar chart shows the reported cases in the population for a particular state. It shows how many cases we have in one million of inhabitants. The mortality chart is calculated as a ratio between reported positive and fatal cases showing the percentage of infected people that died. The higher the number, the worse the situation in the particular state even though it might have very few cases in absolute numbers.",
+                       style={"font-size": "12px"}),
             ], style={'text-align': 'center', "margin-bottom": "30px"}, className="twelve columns"),
 
             dbc.Jumbotron([  # first barchart: Population and positive cases
@@ -187,10 +201,12 @@ app.layout = html.Div([
     # -------------------------- FIFTH PART: TABLE WITH BARCHART + CALLBACK [NUMBERS FOR STATES] -------------------------------------
 
     dbc.Jumbotron([
-        html.Div([ # the interactive table
-            html.H3("Reported Cases: Tabular Data Overwiev", style={"text-align": "center"}),
+        html.Div([  # the interactive table
+            html.H3("Reported Cases: Tabular Data Overwiev",
+                    style={"text-align": "center"}),
             html.Br(),
-            html.P("This interactive table allows you to filter out data using arithmetic operators. If you for example want to see only states with positive cases above 1000, just type '> 1000' in the column 'Positive'. You can also use the checkboxes on the left to plot the data for a particular state in the bar chart on the right-hand side of the table.", style={"text-align": "center", "font-size": "12px"}),
+            html.P("This interactive table allows you to filter out data using arithmetic operators. If you for example want to see only states with positive cases above 1000, just type '> 1000' in the column 'Positive'. You can also use the checkboxes on the left to plot the data for a particular state in the bar chart on the right-hand side of the table.",
+                   style={"text-align": "center", "font-size": "12px"}),
             html.Br(),
             dash_table.DataTable(
                 id='datatable_id',
@@ -211,13 +227,14 @@ app.layout = html.Div([
                     'minWidth': '40px', 'width': '60px', 'maxWidth': 'px',
                     'overflow': 'hidden',
                     'textOverflow': 'ellipsis',
-            }, )
+                }, )
         ], className="eight columns",  style={"text-align": "center", "font-size": "12px"}),
 
         html.Div([  # horizontal barchart bound to the table
             html.H3("Charting Tabular Data", style={"text-align": "center"}),
             html.Br(),
-            html.P("Use dropdown to choose the case.", style={"text-align": "center", "font-size": "12px"}),
+            html.P("Use dropdown to choose the case.", style={
+                   "text-align": "center", "font-size": "12px"}),
             dcc.Dropdown(id='dropval',
                          options=[
                             {'label': 'Tested', 'value': 'totalTestResults'},
@@ -237,11 +254,13 @@ app.layout = html.Div([
     ], className="twelve columns"),
 
     html.Footer([
-        html.P("Primary data source: CovidTracking API. Created by Lukash K. © 2020.", style={"text-align": "center"}),
-        html.P(html.A('Buy me a drink and support this project.', href='https://www.buymeacoffee.com/nirvikalpa'), style={"text-align": "center"}),
+        html.P("Primary data source: CovidTracking API. Created by Lukash K. © 2020.", style={
+               "text-align": "center"}),
+        html.P(html.A('Buy me a drink and support this project.',
+                      href='https://www.buymeacoffee.com/nirvikalpa'), style={"text-align": "center"}),
     ], style={"margin": "1px auto 0 auto"})
 
-    ], className="row", style={"width": "80%", "margin": "auto"}
+], className="row", style={"width": "80%", "margin": "auto"}
 )
 
 
@@ -254,6 +273,7 @@ app.layout = html.Div([
 def update_output(date):
     """ Update Map, Pie, Sunburst and Scatter charts through the date-picker callback button. """
     if date is None:
+        print("in none")
         raise PreventUpdate
     else:
         date = date.replace("-", "")
@@ -269,7 +289,8 @@ def update_output(date):
         fig_map.update_layout(title_text='Density by State',
                               height=600,
                               geo=dict(scope='usa',
-                                       projection=go.layout.geo.Projection(type='albers usa'),
+                                       projection=go.layout.geo.Projection(
+                                           type='albers usa'),
                                        lakecolor='rgb(255, 255, 255)'
                                        ),
                               margin=dict(l=1,
@@ -286,13 +307,15 @@ def update_output(date):
                                           y=1,
                                           ),
                               )
-        fig_pie.update_traces(textposition='inside')  # this will show only text that fits into the piesegmet
+        # this will show only text that fits into the piesegmet
+        fig_pie.update_traces(textposition='inside')
         fig_pie.update_layout(uniformtext_minsize=9, uniformtext_mode='hide')
-        fig_pie.update_traces(domain_x=[0, 0.9])   # positiong of the chart itself, without the title
+        # positiong of the chart itself, without the title
+        fig_pie.update_traces(domain_x=[0, 0.9])
 
         # building the Corelation scatter
-        fig_scatter = go.Figure(data=go.Scatter(x=qdf["pop"],
-                                                y=qdf["positive"],
+        fig_scatter = go.Figure(data=go.Scatter(x=qdf["pop"].fillna(0),
+                                                y=qdf["positive"].fillna(0),
                                                 mode='markers',
                                                 text=qdf['state name']))
         fig_scatter.update_layout(plot_bgcolor='rgba(0,0,0,0)',
@@ -309,7 +332,8 @@ def update_output(date):
         date_df = create_df_for_date(int(date))
         # print(date_df)
         fig_sunburst = px.sunburst(date_df,
-                                   path=["total positive", "region", "division", "state"],
+                                   path=["total positive", "region",
+                                         "division", "state"],
                                    values='positive',
                                    color="death",
                                    color_continuous_scale="Rdbu")
@@ -333,9 +357,11 @@ def update_data(selected_rows, dropval):
     """ Update the Horizontal Barchar based on what states are selected in the table and what is picked in dropdown. """
     # update the table
     if len(selected_rows) == 0:
-        grouped_sel_df = current_state_df[current_state_df['state'].isin(["NJ", "IL", "MA", "TX", "PA", "KS", "OH", "UT", "VI", "VT"])]
+        grouped_sel_df = current_state_df[current_state_df['state'].isin(
+            ["NJ", "IL", "MA", "TX", "PA", "KS", "OH", "UT", "VI", "VT"])]
     else:
-        grouped_sel_df = current_state_df[current_state_df.index.isin(selected_rows)]
+        grouped_sel_df = current_state_df[current_state_df.index.isin(
+            selected_rows)]
 
     # update the X-axis labels based on the dropdown selection
     if dropval == "positive":
@@ -371,4 +397,4 @@ def update_data(selected_rows, dropval):
 
 
 if __name__ == '__main__':
-    app.run_server(port=8051)
+    app.run_server(port=8052)
