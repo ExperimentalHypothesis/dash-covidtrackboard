@@ -19,7 +19,7 @@ plotly = "==4.6.0"
 gunicorn = "*"
 numpy = "*"
 flake8 = "*"
-Werkzeug = "==2.0.0"
+Werkzeug = "==2.2.3"
 
 
 [requires]
